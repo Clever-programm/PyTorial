@@ -84,7 +84,7 @@ class Ui_MainWindow(object):
         self.Profile_photo_img.setText("")
         self.Profile_photo_img.setObjectName("Profile_photo_img")
         self.Mini_photo_img = QtWidgets.QLabel(self.centralwidget)
-        self.Mini_photo_img.setGeometry(QtCore.QRect(10, 10, 31, 31))
+        self.Mini_photo_img.setGeometry(QtCore.QRect(10, 12, 31, 31))
         self.Mini_photo_img.setText("")
         self.Mini_photo_img.setObjectName("Mini_photo_img")
         self.Profile_nickname_txt = QtWidgets.QLabel(self.centralwidget)

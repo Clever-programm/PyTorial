@@ -95,18 +95,36 @@ class TableWidget(QMainWindow, Table_Window):
 
     def choose_avatar(self):
         img_size = 133
+        mini_img_size = 31
         try:
             avatar_d = QFileDialog.getOpenFileName(self, "Open file", 'C:', 'JPG File (*.jpg);;PNG File (*.png)')
             avatar = Image.open(avatar_d[0])
             if avatar.size[0] > avatar.size[1]:
                 delta = img_size / float(avatar.size[1])
+                delta_mini = mini_img_size / float(avatar.size[1])
+                x = int(float(avatar.size[0]) * delta)
+                y = int(float(avatar.size[1]) * delta)
+                x_mini = int(float(avatar.size[0]) * delta_mini)
+                y_mini = int(float(avatar.size[1]) * delta_mini)
+                cropy = ((x - 133) // 2, 0, (x - 133) // 2 + 133, 133)
+                cropy_mini = ((x_mini - 31) // 2, 0, (x_mini - 31) // 2 + 31, 31)
+                avatar = avatar.resize((x, y)).crop(cropy)
+                avatar_mini = avatar.resize((x_mini, y_mini)).crop(cropy_mini)
             else:
                 delta = img_size / float(avatar.size[0])
-            x = int(float(avatar.size[0]) * delta)
-            y = int(float(avatar.size[1]) * delta)
-            avatar = avatar.resize((x, y))
+                delta_mini = mini_img_size / float(avatar.size[0])
+                x = int(float(avatar.size[0]) * delta)
+                y = int(float(avatar.size[1]) * delta)
+                x_mini = int(float(avatar.size[0]) * delta_mini)
+                y_mini = int(float(avatar.size[1]) * delta_mini)
+                cropy = (0, (y - 133) // 2, 133, (y - 133) // 2 + 133)
+                cropy_mini = (0, (y_mini - 31) // 2, 31, (y_mini - 31) // 2 + 31)
+                avatar = avatar.resize((x, y)).crop(cropy)
+                avatar_mini = avatar.resize((x_mini, y_mini)).crop(cropy_mini)
             avatar.save('avatar.jpg')
             self.Profile_photo_img.setPixmap(QtGui.QPixmap('avatar.jpg'))
+            avatar_mini.save('avatar_mini.jpg')
+            self.Mini_photo_img.setPixmap(QtGui.QPixmap('avatar_mini.jpg'))
         except BaseException as e:
             print(e)
 
