@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>960</width>
+    <height>540</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>PyTorial</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="Mini_main_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table1.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Pproger_main_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table2.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Courses_main_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table3.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_main_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table4.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_round_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table4_1.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_proround_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table4_2.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_choose_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table4_3.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_wiki_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table1_1.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Courses_first_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table3_1.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Courses_second_img">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>540</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../img_files/PyTutorial_Table3_2.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_photo_img">
+    <property name="geometry">
+     <rect>
+      <x>186</x>
+      <y>70</y>
+      <width>133</width>
+      <height>133</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_photo_img">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_nickname_txt">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>70</y>
+      <width>500</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Nickname(3-20 letters)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_CID_txt">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>100</y>
+      <width>500</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>CID: #000000</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_pproger_txt">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>125</y>
+      <width>500</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>P-proger: off</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_languages_txt">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>150</y>
+      <width>500</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Языки: None</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Profile_courses_txt">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>175</y>
+      <width>500</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Курсов пройдено: 0</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Mini_wiki_edit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>236</y>
+      <width>138</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(0, 0, 0, 0);</string>
+    </property>
+    <property name="frame">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_wiki_txt">
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>220</y>
+      <width>133</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Поиск по Википедии</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_profile_txt">
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>70</y>
+      <width>133</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Профиль</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_courses_txt">
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>95</y>
+      <width>133</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Курсы</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_pproger_txt">
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>120</y>
+      <width>133</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>P-proger</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_about_txt">
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>145</y>
+      <width>133</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>О приложении</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_nick_txt">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>15</y>
+      <width>95</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Nickname(3-20 letters)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Mini_CID_txt">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>30</y>
+      <width>95</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>CID: #000000</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Profile_choose_btn">
+    <property name="geometry">
+     <rect>
+      <x>186</x>
+      <y>217</y>
+      <width>136</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(0, 0, 0, 0);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Courses_first_btn">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>70</y>
+      <width>273</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(0, 0, 0, 0);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Courses_second_btn">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>269</y>
+      <width>273</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(0, 0, 0, 0);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <zorder>Mini_photo_img</zorder>
+   <zorder>Mini_main_img</zorder>
+   <zorder>Mini_wiki_img</zorder>
+   <zorder>Mini_wiki_txt</zorder>
+   <zorder>Mini_nick_txt</zorder>
+   <zorder>Mini_CID_txt</zorder>
+   <zorder>Profile_photo_img</zorder>
+   <zorder>Profile_main_img</zorder>
+   <zorder>Profile_round_img</zorder>
+   <zorder>Profile_proround_img</zorder>
+   <zorder>Profile_choose_img</zorder>
+   <zorder>Profile_nickname_txt</zorder>
+   <zorder>Profile_CID_txt</zorder>
+   <zorder>Profile_pproger_txt</zorder>
+   <zorder>Profile_languages_txt</zorder>
+   <zorder>Profile_courses_txt</zorder>
+   <zorder>Profile_choose_btn</zorder>
+   <zorder>Courses_main_img</zorder>
+   <zorder>Courses_first_img</zorder>
+   <zorder>Courses_second_img</zorder>
+   <zorder>Courses_first_btn</zorder>
+   <zorder>Courses_second_btn</zorder>
+   <zorder>Pproger_main_img</zorder>
+   <zorder>Mini_profile_txt</zorder>
+   <zorder>Mini_courses_txt</zorder>
+   <zorder>Mini_pproger_txt</zorder>
+   <zorder>Mini_about_txt</zorder>
+   <zorder>Mini_wiki_edit</zorder>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
