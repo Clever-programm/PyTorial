@@ -82,7 +82,6 @@ class Ui_MainWindow(object):
         self.Profile_photo_img = QtWidgets.QLabel(self.centralwidget)
         self.Profile_photo_img.setGeometry(QtCore.QRect(186, 70, 133, 133))
         self.Profile_photo_img.setText("")
-        self.Profile_photo_img.setPixmap(QtGui.QPixmap("test_img.jpg"))
         self.Profile_photo_img.setObjectName("Profile_photo_img")
         self.Mini_photo_img = QtWidgets.QLabel(self.centralwidget)
         self.Mini_photo_img.setGeometry(QtCore.QRect(10, 10, 31, 31))

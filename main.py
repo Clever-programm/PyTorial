@@ -1,7 +1,11 @@
+# импортируем необходимые библиотеки
 import sys
 import sqlite3 as sql
 import pyperclip as pclip
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PIL import Image
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+# импортируем Свои_Окна
 from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
 from PyTorial_Table import Ui_MainWindow as Table_Window
@@ -54,6 +58,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Mini_courses_txt.clicked.connect(self.choose_courses)
         self.Mini_pproger_txt.clicked.connect(self.choose_pproger)
         self.Mini_about_txt.clicked.connect(self.choose_about)
+        self.Profile_choose_btn.clicked.connect(self.choose_avatar)
 
     def copy(self):
         pclip.copy(self.Profile_CID_txt.text()[6:])
@@ -87,6 +92,23 @@ class TableWidget(QMainWindow, Table_Window):
 
     def choose_about(self):
         pass
+
+    def choose_avatar(self):
+        img_size = 133
+        try:
+            avatar_d = QFileDialog.getOpenFileName(self, "Open file", 'C:', 'JPG File (*.jpg);;PNG File (*.png)')
+            avatar = Image.open(avatar_d[0])
+            if avatar.size[0] > avatar.size[1]:
+                delta = img_size / float(avatar.size[1])
+            else:
+                delta = img_size / float(avatar.size[0])
+            x = int(float(avatar.size[0]) * delta)
+            y = int(float(avatar.size[1]) * delta)
+            avatar = avatar.resize((x, y))
+            avatar.save('avatar.jpg')
+            self.Profile_photo_img.setPixmap(QtGui.QPixmap('avatar.jpg'))
+        except BaseException as e:
+            print(e)
 
 
 if __name__ == '__main__':
