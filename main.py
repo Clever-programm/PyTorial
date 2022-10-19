@@ -1,4 +1,5 @@
 # импортируем необходимые библиотеки
+import sqlite3
 import sys
 import sqlite3 as sql
 import pyperclip as pclip
@@ -9,6 +10,11 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
 from PyTorial_Table import Ui_MainWindow as Table_Window
+
+
+# база данных
+con = sqlite3.connect('BDsql.db')
+cur = con.cursor()
 
 
 # класс Главного_Окна
@@ -45,6 +51,18 @@ class RegWidget(QMainWindow, Reg_Window):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.regist.clicked.connect(self.register)
+
+    def register(self):
+        nick = self.Edit_nickname.text()
+        email = self.Edit_email.text()
+        pas1 = self.Edit_password.text()
+        pas2 = self.Edit_password_2.text()
+        try:
+            assert nick and email and pas1 and pas2
+            # I STOP THERE!!!!!
+        except Exception as e:
+            print(e)
 
 
 # класс Рабочего_Окна
@@ -99,6 +117,7 @@ class TableWidget(QMainWindow, Table_Window):
         try:
             avatar_d = QFileDialog.getOpenFileName(self, "Open file", 'C:', 'JPG File (*.jpg);;PNG File (*.png)')
             avatar = Image.open(avatar_d[0])
+            form = avatar_d[1]
             if avatar.size[0] > avatar.size[1]:
                 delta = img_size / float(avatar.size[1])
                 delta_mini = mini_img_size / float(avatar.size[1])
@@ -123,6 +142,7 @@ class TableWidget(QMainWindow, Table_Window):
                 avatar_mini = avatar.resize((x_mini, y_mini)).crop(cropy_mini)
             avatar.save('avatar.jpg')
             self.Profile_photo_img.setPixmap(QtGui.QPixmap('avatar.jpg'))
+
             avatar_mini.save('avatar_mini.jpg')
             self.Mini_photo_img.setPixmap(QtGui.QPixmap('avatar_mini.jpg'))
         except BaseException as e:
