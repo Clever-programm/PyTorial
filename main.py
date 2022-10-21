@@ -42,6 +42,10 @@ class EmailExcept(Exception):
     pass
 
 
+class DBExcept(Exception):
+    pass
+
+
 # класс Главного_Окна
 class MainWidget(QMainWindow, Main_Window):
     # инициализация Главного_Окна
@@ -94,7 +98,11 @@ class RegWidget(QMainWindow, Reg_Window):
                 raise EmailExcept
             if pas1 != pas2:
                 raise PassExcept
-
+            if not (cur.execute(f"""SELECT CID FROM PyUsers 
+                                    WHERE Email = '{email}'""")):
+                raise DBExcept
+            cur.execute(f"""INSERT INTO PyUsers (Nickname, Email, Password) 
+                            VALUES ('{nick}', '{email}', '{pas1}')""")
         except DataExcept:
             error_box('Заполните все поля!')
         except NickExcept:
@@ -103,6 +111,8 @@ class RegWidget(QMainWindow, Reg_Window):
             error_box('Некорректный адрес электронной почты!\n(@gmail.com, @yandex.ru, @mail.ru)')
         except PassExcept:
             error_box("Пароли не совпадают!")
+        except DBExcept:
+            error_box(f'Пользователь с почтой {email} уже существует!')
         except Exception as e:
             error_box('Произошла непредвиденная ошибка')
             print(e)
