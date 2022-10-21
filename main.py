@@ -5,16 +5,41 @@ import sqlite3 as sql
 import pyperclip as pclip
 from PIL import Image
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 # импортируем Свои_Окна
 from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
 from PyTorial_Table import Ui_MainWindow as Table_Window
 
-
 # база данных
 con = sqlite3.connect('BDsql.db')
 cur = con.cursor()
+
+
+# окно ошибки
+def error_box(msg):
+    error = QMessageBox()
+    error.setWindowTitle('Ошибка')
+    error.setText(msg)
+    error.setIcon(QMessageBox.Warning)
+    error.exec()
+
+
+# классы ошибок
+class DataExcept(Exception):
+    pass
+
+
+class PassExcept(Exception):
+    pass
+
+
+class NickExcept(Exception):
+    pass
+
+
+class EmailExcept(Exception):
+    pass
 
 
 # класс Главного_Окна
@@ -59,9 +84,27 @@ class RegWidget(QMainWindow, Reg_Window):
         pas1 = self.Edit_password.text()
         pas2 = self.Edit_password_2.text()
         try:
-            assert nick and email and pas1 and pas2
-            # I STOP THERE!!!!!
+            if not (nick and email and pas1 and pas2):
+                raise DataExcept
+            if not (3 <= len(nick) <= 20):
+                raise NickExcept
+            if email.find('@gmail.com') == -1 and \
+                    email.find('@yandex.ru') == -1 and \
+                    email.find('@mail.ru') == -1:
+                raise EmailExcept
+            if pas1 != pas2:
+                raise PassExcept
+
+        except DataExcept:
+            error_box('Заполните все поля!')
+        except NickExcept:
+            error_box("Никнейм должен содержать 3-20 символов!")
+        except EmailExcept:
+            error_box('Некорректный адрес электронной почты!\n(@gmail.com, @yandex.ru, @mail.ru)')
+        except PassExcept:
+            error_box("Пароли не совпадают!")
         except Exception as e:
+            error_box('Произошла непредвиденная ошибка')
             print(e)
 
 
