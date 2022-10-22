@@ -1,7 +1,7 @@
 # импортируем необходимые библиотеки
 import sqlite3
+import pyrebase
 import sys
-import sqlite3 as sql
 import pyperclip as pclip
 from PIL import Image
 from PyQt5 import QtGui
@@ -42,7 +42,11 @@ class DBExcept(Exception):
     pass
 
 
-# класс Главного_Окна
+class UserExcept(Exception):
+    pass
+
+
+# класс Главного_Окна (ГОТОВО!!!)
 class MainWidget(QMainWindow, Main_Window):
     # инициализация Главного_Окна
     def __init__(self):
@@ -63,15 +67,36 @@ class MainWidget(QMainWindow, Main_Window):
 
     # переход к Рабочему_Окну
     def go_table(self):
+        email = self.Edit_email.text()
+        password = self.Edit_password.text()
+        con = sqlite3.connect('BDsql.db')
+        cur = con.cursor()
         try:
-            self.table = TableWidget()
-            self.table.show()
-            self.close()
+            if not (email and password):
+                raise DataExcept
+            # поиск по базе данных
+            CID = int(list(cur.execute(f"""SELECT CID FROM PyUsers
+                                           WHERE Email = '{email}'
+                                           AND Password = '{password}'"""))[0][0])
+            if CID:
+                self.table = TableWidget(CID)
+                self.table.show()
+                self.close()
+            else:
+                raise UserExcept
+        except DataExcept:
+            error_box('Заполните все поля!')
+        except UserExcept:
+            error_box('Такого пользователя не существует!')
         except Exception as e:
+            error_box('Произошла непредвиденная ошибка')
             print(e)
+        finally:
+            if con:
+                con.close()
 
 
-# класс Окна_Регистрации
+# класс Окна_Регистрации (ГОТОВО!!!)
 class RegWidget(QMainWindow, Reg_Window):
     def __init__(self):
         super().__init__()
@@ -86,6 +111,7 @@ class RegWidget(QMainWindow, Reg_Window):
         con = sqlite3.connect('BDsql.db')
         cur = con.cursor()
         try:
+            # проверка введённых данных
             if not (nick and email and pas1 and pas2):
                 raise DataExcept
             if not (3 <= len(nick) <= 20):
@@ -99,9 +125,20 @@ class RegWidget(QMainWindow, Reg_Window):
             if list(cur.execute(f"""SELECT * FROM PyUsers 
                                WHERE Email = '{email}'""")):
                 raise DBExcept
+            # добавление пользователя к базе данных
             cur.execute(f"""INSERT INTO PyUsers (Nickname, Email, Password) 
                             VALUES ('{nick}', '{email}', '{pas1}')""")
             con.commit()
+            # переход к Рабочему_Окну
+            CID = int(list(cur.execute(f"""SELECT CID FROM PyUsers
+                                           WHERE Email = '{email}'
+                                           AND Password = '{pas1}'"""))[0][0])
+            if CID:
+                self.table = TableWidget(CID)
+                self.table.show()
+                self.close()
+            else:
+                raise Exception
         except DataExcept:
             error_box('Заполните все поля!')
         except NickExcept:
@@ -120,11 +157,43 @@ class RegWidget(QMainWindow, Reg_Window):
                 con.close()
 
 
-# класс Рабочего_Окна
+# класс Рабочего_Окна (новые вкладки, работа бд с имг)
 class TableWidget(QMainWindow, Table_Window):
-    def __init__(self):
+    def __init__(self, CID):
         super().__init__()
         self.setupUi(self)
+        self.CID = CID
+        self.Nick = None
+        self.Avatar = None
+        self.Pproger = False
+        self.Courses = 0
+        # инициализация базы данных
+        con = sqlite3.connect('BDsql.db')
+        cur = con.cursor()
+        self.Nick, self.Avtar, self.Pproger, self.Courses = list(cur.execute(f"""
+                SELECT Nickname, Avatar, Pproger, Courses FROM PyUsers
+                WHERE CID = {self.CID}
+        """))[0]
+        try:
+            pass
+        except Exception as e:
+            error_box('Произошла непредвиденная ошибка')
+            print(e)
+            self.main = MainWidget()
+            self.main.show()
+            self.close()
+        finally:
+            if con:
+                con.close()
+        # необходимые преобразования
+        self.Profile_CID_txt.setText('CID: #' + str(self.convert_base(self.CID, to_base=16)).rjust(6, '0'))
+        self.Profile_nickname_txt.setText(self.Nick)
+        self.Profile_pproger_txt.setText('P-proger: ' + self.Pproger * 'on' + int(not bool(self.Pproger)) * 'off')
+        self.Profile_courses_txt.setText('Курсов пройдено: ' + str(self.Courses))
+        if self.Pproger:
+            self.Profile_proround_img.show()
+        self.Mini_CID_txt.setText('CID: #' + str(self.convert_base(self.CID, to_base=16)).rjust(6, '0'))
+        self.Mini_nick_txt.setText(self.Nick)
         # кнопки
         self.Profile_CID_txt.clicked.connect(self.copy)
         self.Mini_profile_txt.clicked.connect(self.choose_profile)
@@ -132,6 +201,17 @@ class TableWidget(QMainWindow, Table_Window):
         self.Mini_pproger_txt.clicked.connect(self.choose_pproger)
         self.Mini_about_txt.clicked.connect(self.choose_about)
         self.Profile_choose_btn.clicked.connect(self.choose_avatar)
+
+    def convert_base(self, num, to_base=10, from_base=10):
+        if isinstance(num, str):
+            n = int(num, from_base)
+        else:
+            n = int(num)
+        alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        if n < to_base:
+            return alphabet[n]
+        else:
+            return self.convert_base(n // to_base, to_base) + alphabet[n % to_base]
 
     def copy(self):
         pclip.copy(self.Profile_CID_txt.text()[6:])
@@ -173,6 +253,7 @@ class TableWidget(QMainWindow, Table_Window):
             avatar_d = QFileDialog.getOpenFileName(self, "Open file", 'C:', 'JPG File (*.jpg);;PNG File (*.png)')
             avatar = Image.open(avatar_d[0])
             form = avatar_d[1]
+            # корректировка изображения
             if avatar.size[0] > avatar.size[1]:
                 delta = img_size / float(avatar.size[1])
                 delta_mini = mini_img_size / float(avatar.size[1])
@@ -195,9 +276,9 @@ class TableWidget(QMainWindow, Table_Window):
                 cropy_mini = (0, (y_mini - 31) // 2, 31, (y_mini - 31) // 2 + 31)
                 avatar = avatar.resize((x, y)).crop(cropy)
                 avatar_mini = avatar.resize((x_mini, y_mini)).crop(cropy_mini)
+            # сохранение и установка аватарки
             avatar.save('avatar.jpg')
             self.Profile_photo_img.setPixmap(QtGui.QPixmap('avatar.jpg'))
-
             avatar_mini.save('avatar_mini.jpg')
             self.Mini_photo_img.setPixmap(QtGui.QPixmap('avatar_mini.jpg'))
         except BaseException as e:
