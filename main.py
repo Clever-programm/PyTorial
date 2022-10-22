@@ -11,10 +11,6 @@ from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
 from PyTorial_Table import Ui_MainWindow as Table_Window
 
-# база данных
-con = sqlite3.connect('BDsql.db')
-cur = con.cursor()
-
 
 # окно ошибки
 def error_box(msg):
@@ -87,6 +83,8 @@ class RegWidget(QMainWindow, Reg_Window):
         email = self.Edit_email.text()
         pas1 = self.Edit_password.text()
         pas2 = self.Edit_password_2.text()
+        con = sqlite3.connect('BDsql.db')
+        cur = con.cursor()
         try:
             if not (nick and email and pas1 and pas2):
                 raise DataExcept
@@ -98,11 +96,12 @@ class RegWidget(QMainWindow, Reg_Window):
                 raise EmailExcept
             if pas1 != pas2:
                 raise PassExcept
-            if not (cur.execute(f"""SELECT CID FROM PyUsers 
-                                    WHERE Email = '{email}'""")):
+            if list(cur.execute(f"""SELECT * FROM PyUsers 
+                               WHERE Email = '{email}'""")):
                 raise DBExcept
             cur.execute(f"""INSERT INTO PyUsers (Nickname, Email, Password) 
                             VALUES ('{nick}', '{email}', '{pas1}')""")
+            con.commit()
         except DataExcept:
             error_box('Заполните все поля!')
         except NickExcept:
@@ -116,6 +115,9 @@ class RegWidget(QMainWindow, Reg_Window):
         except Exception as e:
             error_box('Произошла непредвиденная ошибка')
             print(e)
+        finally:
+            if con:
+                con.close()
 
 
 # класс Рабочего_Окна
