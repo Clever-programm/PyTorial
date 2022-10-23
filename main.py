@@ -1,6 +1,4 @@
 # импортируем необходимые библиотеки
-import sqlite3
-import pyrebase
 import sys
 import pyperclip as pclip
 from PIL import Image
@@ -10,6 +8,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
 from PyTorial_Table import Ui_MainWindow as Table_Window
+# импортируем базу данных
+import FireBaseHelper as fbh
 
 
 # окно ошибки
@@ -42,10 +42,6 @@ class DBExcept(Exception):
     pass
 
 
-class UserExcept(Exception):
-    pass
-
-
 # класс Главного_Окна (ГОТОВО!!!)
 class MainWidget(QMainWindow, Main_Window):
     # инициализация Главного_Окна
@@ -69,31 +65,26 @@ class MainWidget(QMainWindow, Main_Window):
     def go_table(self):
         email = self.Edit_email.text()
         password = self.Edit_password.text()
-        con = sqlite3.connect('BDsql.db')
-        cur = con.cursor()
         try:
             if not (email and password):
                 raise DataExcept
             # поиск по базе данных
-            CID = int(list(cur.execute(f"""SELECT CID FROM PyUsers
-                                           WHERE Email = '{email}'
-                                           AND Password = '{password}'"""))[0][0])
-            if CID:
-                self.table = TableWidget(CID)
+            data = fbh.check_user_sign(email, password)
+            if data:
+                self.table = TableWidget(data[1])
                 self.table.show()
                 self.close()
             else:
-                raise UserExcept
+                raise PassExcept
         except DataExcept:
             error_box('Заполните все поля!')
-        except UserExcept:
+        except fbh.UserExcept:
             error_box('Такого пользователя не существует!')
+        except PassExcept:
+            error_box('Неверный пароль!')
         except Exception as e:
             error_box('Произошла непредвиденная ошибка')
             print(e)
-        finally:
-            if con:
-                con.close()
 
 
 # класс Окна_Регистрации (ГОТОВО!!!)
@@ -108,8 +99,6 @@ class RegWidget(QMainWindow, Reg_Window):
         email = self.Edit_email.text()
         pas1 = self.Edit_password.text()
         pas2 = self.Edit_password_2.text()
-        con = sqlite3.connect('BDsql.db')
-        cur = con.cursor()
         try:
             # проверка введённых данных
             if not (nick and email and pas1 and pas2):
@@ -122,23 +111,14 @@ class RegWidget(QMainWindow, Reg_Window):
                 raise EmailExcept
             if pas1 != pas2:
                 raise PassExcept
-            if list(cur.execute(f"""SELECT * FROM PyUsers 
-                               WHERE Email = '{email}'""")):
+            if fbh.find_user_by_email(email):
                 raise DBExcept
-            # добавление пользователя к базе данных
-            cur.execute(f"""INSERT INTO PyUsers (Nickname, Email, Password) 
-                            VALUES ('{nick}', '{email}', '{pas1}')""")
-            con.commit()
+            fbh.new_user(nick, email, pas1)
             # переход к Рабочему_Окну
-            CID = int(list(cur.execute(f"""SELECT CID FROM PyUsers
-                                           WHERE Email = '{email}'
-                                           AND Password = '{pas1}'"""))[0][0])
-            if CID:
-                self.table = TableWidget(CID)
-                self.table.show()
-                self.close()
-            else:
-                raise Exception
+            data = fbh.check_user_sign(email, pas1)
+            self.table = TableWidget(data[1])
+            self.table.show()
+            self.close()
         except DataExcept:
             error_box('Заполните все поля!')
         except NickExcept:
@@ -152,9 +132,6 @@ class RegWidget(QMainWindow, Reg_Window):
         except Exception as e:
             error_box('Произошла непредвиденная ошибка')
             print(e)
-        finally:
-            if con:
-                con.close()
 
 
 # класс Рабочего_Окна (новые вкладки, работа бд с имг)
@@ -163,36 +140,20 @@ class TableWidget(QMainWindow, Table_Window):
         super().__init__()
         self.setupUi(self)
         self.CID = CID
-        self.Nick = None
-        self.Avatar = None
-        self.Pproger = False
         self.Courses = 0
-        # инициализация базы данных
-        con = sqlite3.connect('BDsql.db')
-        cur = con.cursor()
-        self.Nick, self.Avtar, self.Pproger, self.Courses = list(cur.execute(f"""
-                SELECT Nickname, Avatar, Pproger, Courses FROM PyUsers
-                WHERE CID = {self.CID}
-        """))[0]
-        try:
-            pass
-        except Exception as e:
-            error_box('Произошла непредвиденная ошибка')
-            print(e)
-            self.main = MainWidget()
-            self.main.show()
-            self.close()
-        finally:
-            if con:
-                con.close()
+        data = fbh.find_user_by_id(fbh.convert_base(CID, to_base=16))
+        self.Avtar, cid, courses, email, self.Nick, password, self.Pproger = data
+        for i in courses.values():
+            if i == 100:
+                self.Courses += 1
         # необходимые преобразования
-        self.Profile_CID_txt.setText('CID: #' + str(self.convert_base(self.CID, to_base=16)).rjust(6, '0'))
+        self.Profile_CID_txt.setText('CID: #' + str(fbh.convert_base(self.CID, to_base=16)).rjust(6, '0'))
         self.Profile_nickname_txt.setText(self.Nick)
         self.Profile_pproger_txt.setText('P-proger: ' + self.Pproger * 'on' + int(not bool(self.Pproger)) * 'off')
         self.Profile_courses_txt.setText('Курсов пройдено: ' + str(self.Courses))
         if self.Pproger:
             self.Profile_proround_img.show()
-        self.Mini_CID_txt.setText('CID: #' + str(self.convert_base(self.CID, to_base=16)).rjust(6, '0'))
+        self.Mini_CID_txt.setText('CID: #' + str(fbh.convert_base(self.CID, to_base=16)).rjust(6, '0'))
         self.Mini_nick_txt.setText(self.Nick)
         # кнопки
         self.Profile_CID_txt.clicked.connect(self.copy)
@@ -201,17 +162,6 @@ class TableWidget(QMainWindow, Table_Window):
         self.Mini_pproger_txt.clicked.connect(self.choose_pproger)
         self.Mini_about_txt.clicked.connect(self.choose_about)
         self.Profile_choose_btn.clicked.connect(self.choose_avatar)
-
-    def convert_base(self, num, to_base=10, from_base=10):
-        if isinstance(num, str):
-            n = int(num, from_base)
-        else:
-            n = int(num)
-        alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        if n < to_base:
-            return alphabet[n]
-        else:
-            return self.convert_base(n // to_base, to_base) + alphabet[n % to_base]
 
     def copy(self):
         pclip.copy(self.Profile_CID_txt.text()[6:])
