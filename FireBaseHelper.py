@@ -57,7 +57,7 @@ def new_user(nickname, email, password):
 
 def find_user_by_id(CID):
     data = list()
-    for i in pytorial_storage.child('PyTorialTables').child('Users').child(CID).get().each():
+    for i in pytorial_storage.child('PyTorialTables').child('Users').child(str(CID).rjust(6, '0')).get().each():
         data.append(i.val())
     return data
 
