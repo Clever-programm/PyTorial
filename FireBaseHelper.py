@@ -6,6 +6,10 @@ class UserExcept(Exception):
     pass
 
 
+class ConnectionExcept(Exception):
+    pass
+
+
 config = {
     'apiKey': "AIzaSyB6G4YjrKMSkJl_h58aE_eb307SPumSRyQ",
     'authDomain': "cleverproductionpytorial.firebaseapp.com",
@@ -16,7 +20,6 @@ config = {
     'appId': "1:1078729198626:web:707b3b1da05a4c8dd48e7b",
     'measurementId': "G-5RLJL76Y7V"
 }
-
 firebase = pyrebase.initialize_app(config)
 pytorial_storage = firebase.database()
 
