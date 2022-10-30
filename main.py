@@ -1,9 +1,11 @@
 # импортируем необходимые библиотеки
 import sys
 import pyperclip as pclip
+import wikipedia
 from PIL import Image
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
+from PyQt5.QtCore import Qt
 # импортируем Свои_Окна
 from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
@@ -13,6 +15,9 @@ from PyTorial_Cours import Ui_MainWindow as Cours_Window
 import FireBaseHelper as fbh
 
 
+wikipedia.set_lang('ru')
+
+
 # окно ошибки
 def error_box(msg):
     error = QMessageBox()
@@ -20,6 +25,21 @@ def error_box(msg):
     error.setText(msg)
     error.setIcon(QMessageBox.Warning)
     error.exec()
+
+
+# окно вики
+def wiki_box(word):
+    try:
+        wiki = QMessageBox()
+        wiki.setWindowTitle(word)
+        try:
+            wiki.setText(wikipedia.summary(word, sentences=1))
+        except Exception as e:
+            wiki.setText('Информация по данному слову не найдена')
+            print(e)
+        wiki.exec()
+    except Exception as ex:
+        print(ex)
 
 
 # классы ошибок
@@ -166,6 +186,15 @@ class TableWidget(QMainWindow, Table_Window):
         self.Profile_choose_btn.clicked.connect(self.choose_avatar)
         self.Courses_first_btn.clicked.connect(self.go_cours)
 
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        if event.key() == Qt.Key_F10:
+            wiki_box(self.Mini_wiki_edit.text())
+            print('it is work?')
+
+    def mousePressEvent(self, event: QtGui.QMouseEvent):
+        if event.MouseButtonDblClick:
+            self.Mini_wiki_edit.setEnabled(not self.Mini_wiki_edit.isEnabled())
+
     def copy(self):
         pclip.copy(self.Profile_CID_txt.text()[6:])
 
@@ -178,6 +207,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Courses_first_btn.hide()
         self.Pproger_main_img.hide()
         self.About_main_img.hide()
+        self.About_txt.hide()
 
     def choose_courses(self):
         self.Profile_main_img.hide()
@@ -188,6 +218,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Courses_first_btn.show()
         self.Pproger_main_img.hide()
         self.About_main_img.hide()
+        self.About_txt.hide()
 
     def choose_pproger(self):
         self.Profile_main_img.hide()
@@ -198,6 +229,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Courses_first_btn.hide()
         self.Pproger_main_img.show()
         self.About_main_img.hide()
+        self.About_txt.hide()
 
     def choose_about(self):
         self.Profile_main_img.hide()
@@ -208,6 +240,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Courses_first_btn.hide()
         self.Pproger_main_img.hide()
         self.About_main_img.show()
+        self.About_txt.show()
 
     def choose_avatar(self):
         img_size = 133

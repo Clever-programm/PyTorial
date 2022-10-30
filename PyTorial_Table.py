@@ -41,6 +41,15 @@ class Ui_MainWindow(object):
         self.About_main_img.setPixmap(QtGui.QPixmap("PyTutorial_Table5.png"))
         self.About_main_img.setObjectName("About_main_img")
         self.About_main_img.hide()
+        self.About_txt = QtWidgets.QLabel(self.centralwidget)
+        self.About_txt.setGeometry(QtCore.QRect(186, 70, 734, 400))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(16)
+        font.setWeight(75)
+        self.About_txt.setFont(font)
+        self.About_txt.setObjectName("About_txt")
+        self.About_txt.hide()
         self.Courses_main_img = QtWidgets.QLabel(self.centralwidget)
         self.Courses_main_img.setGeometry(QtCore.QRect(0, 0, 960, 540))
         self.Courses_main_img.setText("")
@@ -256,6 +265,7 @@ class Ui_MainWindow(object):
         self.Courses_second_btn.raise_()
         self.Pproger_main_img.raise_()
         self.About_main_img.raise_()
+        self.About_txt.raise_()
         self.Mini_profile_txt.raise_()
         self.Mini_courses_txt.raise_()
         self.Mini_pproger_txt.raise_()
@@ -273,6 +283,20 @@ class Ui_MainWindow(object):
         self.Profile_CID_txt.setText(_translate("MainWindow", "CID: #000000"))
         self.Profile_pproger_txt.setText(_translate("MainWindow", "P-proger: off"))
         self.Profile_courses_txt.setText(_translate("MainWindow", "Курсов пройдено: 0"))
+        self.About_txt.setText(_translate("MainWindow", '''
+            Программа представляет собой 
+            приложение "PyTorial", которое 
+            позволит пользователю в удобной 
+            форме изучить язык 
+            программирования Python. Зайдя 
+            в программу пользователю 
+            предстоит зарегистрироваться 
+            или войти в уже созданный 
+            аккаунт. Далее пользователю 
+            откроется первый набор курсов. 
+            Сам курс основан на курсе 
+            первого года Яндекс Лицея.
+            '''))
         self.Mini_wiki_txt.setText(_translate("MainWindow", "Поиск по Википедии"))
         self.Mini_profile_txt.setText(_translate("MainWindow", "Профиль"))
         self.Mini_courses_txt.setText(_translate("MainWindow", "Курсы"))
