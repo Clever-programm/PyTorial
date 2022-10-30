@@ -154,6 +154,7 @@ class Ui_MainWindow(object):
         self.Mini_wiki_edit.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
         self.Mini_wiki_edit.setFrame(False)
         self.Mini_wiki_edit.setObjectName("Mini_wiki_edit")
+        self.Mini_wiki_edit.setToolTip("Нажмите F10 для поиска по википедии")
         self.Mini_wiki_txt = QtWidgets.QLabel(self.centralwidget)
         self.Mini_wiki_txt.setGeometry(QtCore.QRect(13, 220, 133, 13))
         font = QtGui.QFont()

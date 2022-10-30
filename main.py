@@ -29,17 +29,14 @@ def error_box(msg):
 
 # окно вики
 def wiki_box(word):
+    wiki = QMessageBox()
+    wiki.setWindowTitle(word)
     try:
-        wiki = QMessageBox()
-        wiki.setWindowTitle(word)
-        try:
-            wiki.setText(wikipedia.summary(word, sentences=1))
-        except Exception as e:
-            wiki.setText('Информация по данному слову не найдена')
-            print(e)
-        wiki.exec()
-    except Exception as ex:
-        print(ex)
+        wiki.setText(wikipedia.summary(word, sentences=1))
+    except Exception as e:
+        wiki.setText('Информация по данному слову не найдена')
+        print(e)
+    wiki.exec()
 
 
 # классы ошибок
@@ -189,7 +186,6 @@ class TableWidget(QMainWindow, Table_Window):
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         if event.key() == Qt.Key_F10:
             wiki_box(self.Mini_wiki_edit.text())
-            print('it is work?')
 
     def mousePressEvent(self, event: QtGui.QMouseEvent):
         if event.MouseButtonDblClick:
