@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
 from PyTorial_Table import Ui_MainWindow as Table_Window
+from PyTorial_Cours import Ui_MainWindow as Cours_Window
 # импортируем базу данных
 import FireBaseHelper as fbh
 
@@ -134,7 +135,7 @@ class RegWidget(QMainWindow, Reg_Window):
             print(e)
 
 
-# класс Рабочего_Окна (новые вкладки, работа бд с имг)
+# класс Рабочего_Окна (работа бд с имг, Wiki)
 class TableWidget(QMainWindow, Table_Window):
     def __init__(self, CID):
         super().__init__()
@@ -142,7 +143,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.CID = CID
         self.Courses = 0
         data = fbh.find_user_by_id(fbh.convert_base(CID, to_base=16))
-        self.Avtar, cid, courses, email, self.Nick, password, self.Pproger = data
+        self.Avtar, cid, courses, email, self.Nick, password, self.Pproger, self.Teacher = data
         for i in courses.values():
             if i == 100:
                 self.Courses += 1
@@ -150,18 +151,20 @@ class TableWidget(QMainWindow, Table_Window):
         self.Profile_CID_txt.setText('CID: #' + str(fbh.convert_base(self.CID, to_base=16)).rjust(6, '0'))
         self.Profile_nickname_txt.setText(self.Nick)
         self.Profile_pproger_txt.setText('P-proger: ' + self.Pproger * 'on' + int(not bool(self.Pproger)) * 'off')
+        self.Profile_role_txt.setText('Роль: ' + self.Teacher * 'Учитель' + int(not bool(self.Teacher)) * 'Ученик')
         self.Profile_courses_txt.setText('Курсов пройдено: ' + str(self.Courses))
         if self.Pproger:
             self.Profile_proround_img.show()
         self.Mini_CID_txt.setText('CID: #' + str(fbh.convert_base(self.CID, to_base=16)).rjust(6, '0'))
         self.Mini_nick_txt.setText(self.Nick)
         # кнопки
-        self.Profile_CID_txt.clicked.connect(self.copy)
         self.Mini_profile_txt.clicked.connect(self.choose_profile)
         self.Mini_courses_txt.clicked.connect(self.choose_courses)
         self.Mini_pproger_txt.clicked.connect(self.choose_pproger)
         self.Mini_about_txt.clicked.connect(self.choose_about)
+        self.Profile_CID_txt.clicked.connect(self.copy)
         self.Profile_choose_btn.clicked.connect(self.choose_avatar)
+        self.Courses_first_btn.clicked.connect(self.go_cours)
 
     def copy(self):
         pclip.copy(self.Profile_CID_txt.text()[6:])
@@ -174,6 +177,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Courses_second_btn.hide()
         self.Courses_first_btn.hide()
         self.Pproger_main_img.hide()
+        self.About_main_img.hide()
 
     def choose_courses(self):
         self.Profile_main_img.hide()
@@ -183,6 +187,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Courses_second_btn.show()
         self.Courses_first_btn.show()
         self.Pproger_main_img.hide()
+        self.About_main_img.hide()
 
     def choose_pproger(self):
         self.Profile_main_img.hide()
@@ -192,9 +197,17 @@ class TableWidget(QMainWindow, Table_Window):
         self.Courses_second_btn.hide()
         self.Courses_first_btn.hide()
         self.Pproger_main_img.show()
+        self.About_main_img.hide()
 
     def choose_about(self):
-        pass
+        self.Profile_main_img.hide()
+        self.Courses_main_img.hide()
+        self.Courses_second_img.hide()
+        self.Courses_first_img.hide()
+        self.Courses_second_btn.hide()
+        self.Courses_first_btn.hide()
+        self.Pproger_main_img.hide()
+        self.About_main_img.show()
 
     def choose_avatar(self):
         img_size = 133
@@ -233,6 +246,21 @@ class TableWidget(QMainWindow, Table_Window):
             self.Mini_photo_img.setPixmap(QtGui.QPixmap('avatar_mini.jpg'))
         except BaseException as e:
             print(e)
+
+    def go_cours(self):
+        try:
+            self.cours = CoursWidget(self.CID)
+            self.cours.show()
+            self.close()
+        except Exception as e:
+            print(e)
+
+
+class CoursWidget(QMainWindow, Cours_Window):
+    def __init__(self, CID):
+        super().__init__()
+        self.setupUi(self)
+        self.CID = CID
 
 
 if __name__ == '__main__':

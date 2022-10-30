@@ -50,7 +50,8 @@ def new_user(nickname, email, password):
                 'Email': email,
                 'Nickname': nickname,
                 'Password': password,
-                'Pproger': False}
+                'Pproger': False,
+                'Teacher': False}
         cours = {'Python_base': 0,
                  'Python_junior': 0}
         pytorial_storage.child('PyTorialTables').child('Users').child(sid.rjust(6, '0')).set(data)
