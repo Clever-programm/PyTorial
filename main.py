@@ -14,7 +14,6 @@ from PyTorial_Cours import Ui_MainWindow as Cours_Window
 # импортируем базу данных
 import FireBaseHelper as fbh
 
-
 wikipedia.set_lang('ru')
 
 
@@ -32,7 +31,7 @@ def wiki_box(word):
     wiki = QMessageBox()
     wiki.setWindowTitle(word)
     try:
-        wiki.setText(wikipedia.summary(word, sentences=1))
+        wiki.setText(wikipedia.summary(word, sentences=2))
     except Exception as e:
         wiki.setText('Информация по данному слову не найдена')
         print(e)
@@ -181,7 +180,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Mini_about_txt.clicked.connect(self.choose_about)
         self.Profile_CID_txt.clicked.connect(self.copy)
         self.Profile_choose_btn.clicked.connect(self.choose_avatar)
-        self.Courses_first_btn.clicked.connect(self.go_cours)
+        self.Courses_first_btn.clicked.connect(self.go_course_BASE)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         if event.key() == Qt.Key_F10:
@@ -269,27 +268,42 @@ class TableWidget(QMainWindow, Table_Window):
                 avatar = avatar.resize((x, y)).crop(cropy)
                 avatar_mini = avatar.resize((x_mini, y_mini)).crop(cropy_mini)
             # сохранение и установка аватарки
-            avatar.save('avatar.jpg')
-            self.Profile_photo_img.setPixmap(QtGui.QPixmap('avatar.jpg'))
-            avatar_mini.save('avatar_mini.jpg')
-            self.Mini_photo_img.setPixmap(QtGui.QPixmap('avatar_mini.jpg'))
+            avatar.save('Data/Images/avatar.jpg')
+            self.Profile_photo_img.setPixmap(QtGui.QPixmap('Data/Images/avatar.jpg'))
+            avatar_mini.save('Data/Images/avatar_mini.jpg')
+            self.Mini_photo_img.setPixmap(QtGui.QPixmap('Data/Images/avatar_mini.jpg'))
         except BaseException as e:
             print(e)
 
-    def go_cours(self):
+    def go_course_BASE(self):
         try:
-            self.cours = CoursWidget(self.CID)
-            self.cours.show()
+            self.course_name = "BASE"
+            self.course = CourseWidget(self.CID, self.course_name)
+            self.course.show()
             self.close()
         except Exception as e:
             print(e)
 
 
-class CoursWidget(QMainWindow, Cours_Window):
-    def __init__(self, CID):
+class CourseWidget(QMainWindow, Cours_Window):
+    def __init__(self, CID, course_name):
         super().__init__()
         self.setupUi(self)
         self.CID = CID
+        self.course_name = course_name
+        self.progress = fbh.get_user_progress(self.CID, self.course_name)
+        self.Name_txt.setText((self.course_name == 'BASE') * 'Основы программирования на Python' + \
+                              (self.course_name == 'PRO') * 'Начало разработки на Python')
+        # кнопки
+        self.Back_btn.clicked.connect(self.go_table)
+
+    def go_table(self):
+        try:
+            self.table = TableWidget(self.CID)
+            self.table.show()
+            self.close()
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':

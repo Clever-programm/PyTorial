@@ -16,7 +16,7 @@ class Ui_MainWindow(object):
         self.MainImage = QtWidgets.QLabel(self.centralwidget)
         self.MainImage.setGeometry(QtCore.QRect(0, 0, 960, 540))
         self.MainImage.setText("")
-        self.MainImage.setPixmap(QtGui.QPixmap("PyTutorial_Reg1.png"))
+        self.MainImage.setPixmap(QtGui.QPixmap("Data/Images/PyTutorial_Reg1.png"))
         self.MainImage.setObjectName("MainImage")
         self.regist = QtWidgets.QPushButton(self.centralwidget)
         self.regist.setGeometry(QtCore.QRect(270, 407, 111, 32))

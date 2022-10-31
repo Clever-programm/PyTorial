@@ -52,8 +52,8 @@ def new_user(nickname, email, password):
                 'Password': password,
                 'Pproger': False,
                 'Teacher': False}
-        cours = {'Python_base': 0,
-                 'Python_junior': 0}
+        cours = {'BASE': 0,
+                 'PRO': 0}
         pytorial_storage.child('PyTorialTables').child('Users').child(sid.rjust(6, '0')).set(data)
         pytorial_storage.child('PyTorialTables').child('Users').child(sid.rjust(6, '0')).child('Courses').set(cours)
         break
@@ -80,3 +80,16 @@ def check_user_sign(email, password):
     if data[5] == password:
         return data
     return False
+
+
+def get_user_progress(CID, course):
+    cid = convert_base(CID, to_base=16)
+    return pytorial_storage.child(f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}/').get().val()
+
+
+def update_progress(CID, course, new_progress):
+    cid = convert_base(CID, to_base=16)
+    data = {
+        f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}': new_progress
+    }
+    pytorial_storage.update(data)
