@@ -1,4 +1,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QLabel
+
+
+class ClickedLabel(QLabel):
+    clicked = pyqtSignal()
+
+    def mouseReleaseEvent(self, e):
+        super().mouseReleaseEvent(e)
+
+        self.clicked.emit()
 
 
 class Ui_MainWindow(object):
@@ -13,6 +24,7 @@ class Ui_MainWindow(object):
         MainWindow.setSizePolicy(sizePolicy)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        # scroll Main
         self.Main_img = QtWidgets.QLabel(self.centralwidget)
         self.Main_img.setGeometry(QtCore.QRect(0, 0, 980, 540))
         self.Main_img.setText("")
@@ -23,10 +35,56 @@ class Ui_MainWindow(object):
         self.scrollArea.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidget = QtWidgets.QWidget()
+        self.scrollAreaWidget.setGeometry(QtCore.QRect(0, 0, 980, 540))
+        self.scrollAreaWidget.setObjectName("scrollAreaWidget")
+        self.layoutScrollMain = QtWidgets.QVBoxLayout()
+
+        # scroll Lesson
+        self.Lesson_img = QtWidgets.QLabel(self.centralwidget)
+        self.Lesson_img.setGeometry(QtCore.QRect(0, 0, 980, 540))
+        self.Lesson_img.setText('')
+        self.Lesson_img.setPixmap(QtGui.QPixmap('Data/Images/PyTutorial_Courses_4.png'))
+        self.Lesson_img.setObjectName('Lesson_img')
+        self.Lesson_img.hide()
+        self.scrollAreaLesson = QtWidgets.QScrollArea(self.centralwidget)
+        self.scrollAreaLesson.setGeometry(QtCore.QRect(0, 0, 980, 540))
+        self.scrollAreaLesson.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
+        self.scrollAreaLesson.setWidgetResizable(True)
+        self.scrollAreaLesson.setObjectName("scrollAreaLesson")
+        self.layoutScroll = QtWidgets.QVBoxLayout()
+        self.Lesson_txt = QtWidgets.QLabel(self.centralwidget)
+        self.Lesson_txt.setObjectName('Lesson_txt')
+        self.layoutButtons = QtWidgets.QHBoxLayout()
+        self.layoutButtons.setGeometry(QtCore.QRect(0, 0, 980, 30))
+        self.buttons = QtWidgets.QWidget()
+        for i in range(7):
+            label = QtWidgets.QLabel()
+            label.setGeometry(QtCore.QRect(0, 0, 100, 30))
+            self.layoutButtons.addWidget(label)
+        self.rollBack_btn = ClickedLabel()
+        self.rollBack_btn.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.rollBack_btn.setText('')
+        self.rollBack_btn.setPixmap(QtGui.QPixmap('Data/Images/PyTutorial_Courses_5.png'))
+        self.rollBack_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.rollBack_btn.setObjectName('rollBack_btn')
+        self.layoutButtons.addWidget(self.rollBack_btn)
+        self.rollNext_btn = ClickedLabel()
+        self.rollNext_btn.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.rollNext_btn.setText('')
+        self.rollNext_btn.setPixmap(QtGui.QPixmap('Data/Images/PyTutorial_Courses_6.png'))
+        self.rollNext_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.rollNext_btn.setObjectName('rollNext_btn')
+        self.layoutButtons.addWidget(self.rollNext_btn)
+        self.buttons.setLayout(self.layoutButtons)
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 978, 538))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 980, 540))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.layoutScroll.addWidget(self.Lesson_txt)
+        self.layoutScroll.addWidget(self.buttons)
+        self.scrollAreaWidgetContents.setLayout(self.layoutScroll)
+        self.scrollAreaLesson.setWidget(self.scrollAreaWidgetContents)
+        self.scrollAreaLesson.hide()
         self.Up_img = QtWidgets.QLabel(self.centralwidget)
         self.Up_img.setGeometry(QtCore.QRect(0, 0, 980, 89))
         self.Up_img.setText("")

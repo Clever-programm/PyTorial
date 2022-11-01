@@ -3,14 +3,15 @@ import sys
 import pyperclip as pclip
 import wikipedia
 from PIL import Image
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
+from pathlib import Path
 # импортируем Свои_Окна
 from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
 from PyTorial_Table import Ui_MainWindow as Table_Window
-from PyTorial_Cours import Ui_MainWindow as Cours_Window
+from PyTorial_Cours import Ui_MainWindow as Cours_Window, ClickedLabel
 # импортируем базу данных
 import FireBaseHelper as fbh
 
@@ -34,7 +35,7 @@ def wiki_box(word):
         wiki.setText(wikipedia.summary(word, sentences=2))
     except Exception as e:
         wiki.setText('Информация по данному слову не найдена')
-        print(e)
+        print(f'WIKI/38: {e}')
     wiki.exec()
 
 
@@ -76,7 +77,7 @@ class MainWidget(QMainWindow, Main_Window):
             self.reg.show()
             self.close()
         except Exception as e:
-            print(e)
+            print(f'GOREG/80: {e}')
 
     # переход к Рабочему_Окну
     def go_table(self):
@@ -101,7 +102,7 @@ class MainWidget(QMainWindow, Main_Window):
             error_box('Неверный пароль!')
         except Exception as e:
             error_box('Произошла непредвиденная ошибка')
-            print(e)
+            print(f'GOTABLE/105: {e}')
 
 
 # класс Окна_Регистрации (ГОТОВО!!!)
@@ -148,7 +149,7 @@ class RegWidget(QMainWindow, Reg_Window):
             error_box(f'Пользователь с почтой {email} уже существует!')
         except Exception as e:
             error_box('Произошла непредвиденная ошибка')
-            print(e)
+            print(f'REGISTER/152: {e}')
 
 
 # класс Рабочего_Окна (работа бд с имг, Wiki)
@@ -180,7 +181,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.Mini_about_txt.clicked.connect(self.choose_about)
         self.Profile_CID_txt.clicked.connect(self.copy)
         self.Profile_choose_btn.clicked.connect(self.choose_avatar)
-        self.Courses_first_btn.clicked.connect(self.go_course_BASE)
+        self.Courses_first_btn.clicked.connect(self.go_course)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         if event.key() == Qt.Key_F10:
@@ -273,16 +274,16 @@ class TableWidget(QMainWindow, Table_Window):
             avatar_mini.save('Data/Images/avatar_mini.jpg')
             self.Mini_photo_img.setPixmap(QtGui.QPixmap('Data/Images/avatar_mini.jpg'))
         except BaseException as e:
-            print(e)
+            print(f'AVATAR/278: {e}')
 
-    def go_course_BASE(self):
+    def go_course(self):
         try:
-            self.course_name = "BASE"
+            self.course_name = self.sender().objectName()
             self.course = CourseWidget(self.CID, self.course_name)
             self.course.show()
             self.close()
         except Exception as e:
-            print(e)
+            print(f'GOCOURSE/288: {e}')
 
 
 class CourseWidget(QMainWindow, Cours_Window):
@@ -296,6 +297,24 @@ class CourseWidget(QMainWindow, Cours_Window):
                               (self.course_name == 'PRO') * 'Начало разработки на Python')
         # кнопки
         self.Back_btn.clicked.connect(self.go_table)
+        # уроки
+        folder = Path(f'Data/Texts/{course_name}')
+        if not folder.is_dir():
+            raise ValueError(f"[{folder}] не существует или не является директорией")
+        for i in range(len(list(folder.iterdir()))):
+            try:
+                exec(f'self.lesson{i}_btn = ClickedLabel()')
+                exec(f'self.lesson{i}_btn.setGeometry(QtCore.QRect(0, 0, 980, 130))')
+                exec(f'self.lesson{i}_btn.setText("")')
+                exec(f'self.lesson{i}_btn.setPixmap(QtGui.QPixmap("Data/Images/PyTutorial_Courses_3_{i}.png"))')
+                exec(f'self.lesson{i}_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))')
+                exec(f'self.lesson{i}_btn.setObjectName("btn{i}")')
+                exec(f'self.lesson{i}_btn.clicked.connect(self.go_lesson)')
+                exec(f'self.layoutScrollMain.addWidget(self.lesson{i}_btn)')
+            except Exception as e:
+                print(f'NEWLESSON/320: {e}')
+        self.scrollAreaWidget.setLayout(self.layoutScrollMain)
+        self.scrollArea.setWidget(self.scrollAreaWidget)
 
     def go_table(self):
         try:
@@ -303,7 +322,13 @@ class CourseWidget(QMainWindow, Cours_Window):
             self.table.show()
             self.close()
         except Exception as e:
-            print(e)
+            print(f'GOTABLE/330: {e}')
+
+    def go_lesson(self):
+        lesson_num = int(self.sender().objectName()[3:]) + 1
+        self.Lesson_img.show()
+        self.scrollAreaLesson.show()
+
 
 
 if __name__ == '__main__':
