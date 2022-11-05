@@ -7,11 +7,14 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
 from pathlib import Path
+from base64 import b64encode, b64decode
+from io import BytesIO
 # импортируем Свои_Окна
 from PyTorial_Main import Ui_MainWindow as Main_Window
 from PyTorial_Reg import Ui_MainWindow as Reg_Window
 from PyTorial_Table import Ui_MainWindow as Table_Window
 from PyTorial_Cours import Ui_MainWindow as Cours_Window, ClickedLabel
+from UserProgram import check as up
 # импортируем базу данных
 import FireBaseHelper as fbh
 
@@ -152,7 +155,7 @@ class RegWidget(QMainWindow, Reg_Window):
             print(f'REGISTER/152: {e}')
 
 
-# класс Рабочего_Окна (работа бд с имг, Wiki)
+# класс Рабочего_Окна (по возможности музыка)
 class TableWidget(QMainWindow, Table_Window):
     def __init__(self, CID):
         super().__init__()
@@ -165,6 +168,17 @@ class TableWidget(QMainWindow, Table_Window):
             if i == 100:
                 self.Courses += 1
         # необходимые преобразования
+        if self.Avtar:
+            self.image_fromBinary(self.Avtar)
+            self.Profile_photo_img.setPixmap(QtGui.QPixmap('Data/Images/avatar.jpg'))
+            mini = self.image_toSize('Data/Images/avatar.jpg', 31)
+            mini.save('Data/Images/avatar_mini.jpg')
+            self.Mini_photo_img.setPixmap(QtGui.QPixmap('Data/Images/avatar_mini.jpg'))
+        else:
+            self.Profile_photo_img.setPixmap(QtGui.QPixmap('Data/Images/First_avatar.png'))
+            mini = self.image_toSize('Data/Images/First_avatar.png', 31)
+            mini.save('Data/Images/avatar_mini.jpg')
+            self.Mini_photo_img.setPixmap(QtGui.QPixmap('Data/Images/avatar_mini.jpg'))
         self.Profile_CID_txt.setText('CID: #' + str(fbh.convert_base(self.CID, to_base=16)).rjust(6, '0'))
         self.Profile_nickname_txt.setText(self.Nick)
         self.Profile_pproger_txt.setText('P-proger: ' + self.Pproger * 'on' + int(not bool(self.Pproger)) * 'off')
@@ -239,42 +253,32 @@ class TableWidget(QMainWindow, Table_Window):
         self.About_txt.show()
 
     def choose_avatar(self):
-        img_size = 133
-        mini_img_size = 31
+        avatar = None
+        new_avatar = None
+        avatar_mini = None
         try:
             avatar_d = QFileDialog.getOpenFileName(self, "Open file", 'C:', 'JPG File (*.jpg);;PNG File (*.png)')
             avatar = Image.open(avatar_d[0])
-            form = avatar_d[1]
-            # корректировка изображения
-            if avatar.size[0] > avatar.size[1]:
-                delta = img_size / float(avatar.size[1])
-                delta_mini = mini_img_size / float(avatar.size[1])
-                x = int(float(avatar.size[0]) * delta)
-                y = int(float(avatar.size[1]) * delta)
-                x_mini = int(float(avatar.size[0]) * delta_mini)
-                y_mini = int(float(avatar.size[1]) * delta_mini)
-                cropy = ((x - 133) // 2, 0, (x - 133) // 2 + 133, 133)
-                cropy_mini = ((x_mini - 31) // 2, 0, (x_mini - 31) // 2 + 31, 31)
-                avatar = avatar.resize((x, y)).crop(cropy)
-                avatar_mini = avatar.resize((x_mini, y_mini)).crop(cropy_mini)
-            else:
-                delta = img_size / float(avatar.size[0])
-                delta_mini = mini_img_size / float(avatar.size[0])
-                x = int(float(avatar.size[0]) * delta)
-                y = int(float(avatar.size[1]) * delta)
-                x_mini = int(float(avatar.size[0]) * delta_mini)
-                y_mini = int(float(avatar.size[1]) * delta_mini)
-                cropy = (0, (y - 133) // 2, 133, (y - 133) // 2 + 133)
-                cropy_mini = (0, (y_mini - 31) // 2, 31, (y_mini - 31) // 2 + 31)
-                avatar = avatar.resize((x, y)).crop(cropy)
-                avatar_mini = avatar.resize((x_mini, y_mini)).crop(cropy_mini)
-            # сохранение и установка аватарки
+        except BaseException as e:
+            print(f'OpenError: {e}')
+        # корректировка изображения
+        try:
             avatar.save('Data/Images/avatar.jpg')
+            new_avatar = self.image_toSize('Data/Images/avatar.jpg', 133)
+            avatar_mini = self.image_toSize('Data/Images/avatar.jpg', 31)
+        except Exception as e:
+            print(f'SizeError: {e}')
+        # сохранение и установка аватарки
+        try:
+            new_avatar.save('Data/Images/avatar.jpg')
+            bin_img = self.image_toBinary('Data/Images/avatar.jpg')
+            fbh.update_image(self.CID, bin_img)
             self.Profile_photo_img.setPixmap(QtGui.QPixmap('Data/Images/avatar.jpg'))
             avatar_mini.save('Data/Images/avatar_mini.jpg')
             self.Mini_photo_img.setPixmap(QtGui.QPixmap('Data/Images/avatar_mini.jpg'))
-        except BaseException as e:
-            print(f'AVATAR/278: {e}')
+        except Exception as e:
+            print(f'BinaryError: {e}')
+
 
     def go_course(self):
         try:
@@ -285,7 +289,34 @@ class TableWidget(QMainWindow, Table_Window):
         except Exception as e:
             print(f'GOCOURSE/288: {e}')
 
+    def image_toBinary(self, img_path):
+        with open(img_path, 'rb') as f:
+            binary = b64encode(f.read())
+        return binary
 
+    def image_fromBinary(self, binary):
+        img = BytesIO(b64decode(eval(binary)))
+        pil_img = Image.open(img)
+        pil_img.save('Data/Images/avatar.jpg')
+
+    def image_toSize(self, img_path, img_size):
+        new_img = Image.open(img_path)
+        if new_img.size[0] > new_img.size[1]:
+            delta = img_size / float(new_img.size[1])
+            x = int(float(new_img.size[0]) * delta)
+            y = int(float(new_img.size[1]) * delta)
+            cropy = ((x - img_size) // 2, 0, (x - img_size) // 2 + img_size, img_size)
+            new_img = new_img.resize((x, y)).crop(cropy)
+        else:
+            delta = img_size / float(new_img.size[0])
+            x = int(float(new_img.size[0]) * delta)
+            y = int(float(new_img.size[1]) * delta)
+            cropy = (0, (y - img_size) // 2, img_size, (y - img_size) // 2 + img_size)
+            new_img = new_img.resize((x, y)).crop(cropy)
+        return new_img
+
+
+# класс Окна_Курсов (тесты, преподавание)
 class CourseWidget(QMainWindow, Cours_Window):
     def __init__(self, CID, course_name):
         super().__init__()
@@ -325,10 +356,49 @@ class CourseWidget(QMainWindow, Cours_Window):
             print(f'GOTABLE/330: {e}')
 
     def go_lesson(self):
-        lesson_num = int(self.sender().objectName()[3:]) + 1
+        self.count = 1
+        self.lesson_num = int(self.sender().objectName()[3:]) + 1
+        self.rollNext_btn.clicked.connect(self.rollLesson)
+        self.rollBack_btn.clicked.connect(self.rollLesson)
+        course = self.course_name
+        lesson = f"{self.course_name}_{self.lesson_num}"
+        text = f"{lesson}.{self.count}.txt"
+        folder_name = f'Data/Texts/{course}/{lesson}/'
+        folder = Path(folder_name)
+        self.folder_count = 0
+        if folder.is_dir():
+            self.folder_count = len([1 for file in folder.iterdir()])
+        try:
+            with open(f'Data/Texts/{course}/{lesson}/{text}', encoding='utf-8') as file:
+                self.Lesson_txt.setText(''.join(file.readlines()))
+        except Exception as e:
+            self.Lesson_img.hide()
+            self.scrollAreaLesson.hide()
         self.Lesson_img.show()
         self.scrollAreaLesson.show()
 
+    def rollLesson(self):
+        self.test = 0
+        roll = (self.sender().objectName() == 'rollNext_btn') - (self.sender().objectName() == 'rollBack_btn')
+        self.count += roll
+        course = self.course_name
+        lesson = f"{self.course_name}_{self.lesson_num}"
+        text = f"{lesson}.{self.count}.txt"
+        try:
+            with open(f'Data/Texts/{course}/{lesson}/{text}', encoding='utf-8') as file:
+                self.Lesson_txt.setText(''.join(file.readlines()))
+                if self.count == self.folder_count:
+                    self.editProgram.show()
+                    self.results.show()
+                    self.check_btn.clicked.connect(None)
+                    self.error_btn.clicked.connect(None)
+        except Exception as e:
+            self.count = 1
+            self.Lesson_img.hide()
+            self.scrollAreaLesson.hide()
+
+    def check_program(self):
+        text = self.editProgram.text()
 
 
 if __name__ == '__main__':

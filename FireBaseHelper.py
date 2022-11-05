@@ -93,3 +93,11 @@ def update_progress(CID, course, new_progress):
         f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}': new_progress
     }
     pytorial_storage.update(data)
+
+
+def update_image(CID, new_image):
+    cid = convert_base(CID, to_base=16)
+    data = {
+        f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Avatar': str(new_image)
+    }
+    pytorial_storage.update(data)
