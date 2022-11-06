@@ -43,11 +43,11 @@ def wiki_box(word):
     wiki.exec()
 
 
-def program_error_box(out, correct):
+# окно ошибки ученика
+def program_error_box(text):
     error = QMessageBox()
     error.setWindowTitle('Program error')
-    error.setText(f'OUT: {out}\n'\
-                  f'CORRECT: {correct}')
+    error.setText(text)
     error.exec()
 
 
@@ -176,10 +176,7 @@ class TableWidget(QMainWindow, Table_Window):
         self.CID = CID
         self.Courses = 0
         data = fbh.find_user_by_id(fbh.convert_base(CID, to_base=16))
-        self.Avtar, cid, courses, email, self.Nick, password, self.Pproger, self.Teacher = data
-        for i in courses.values():
-            if i == 100:
-                self.Courses += 1
+        self.Avtar, cid, self.Courses, email, self.Nick, password, self.Pproger, self.Teacher = data
         # необходимые преобразования
         if self.Avtar:
             self.image_fromBinary(self.Avtar)
@@ -196,7 +193,6 @@ class TableWidget(QMainWindow, Table_Window):
         self.Profile_nickname_txt.setText(self.Nick)
         self.Profile_pproger_txt.setText('P-proger: ' + self.Pproger * 'on' + int(not bool(self.Pproger)) * 'off')
         self.Profile_role_txt.setText('Роль: ' + self.Teacher * 'Учитель' + int(not bool(self.Teacher)) * 'Ученик')
-        self.Profile_courses_txt.setText('Курсов пройдено: ' + str(self.Courses))
         if self.Pproger:
             self.Profile_proround_img.show()
         self.Mini_CID_txt.setText('CID: #' + str(fbh.convert_base(self.CID, to_base=16)).rjust(6, '0'))
@@ -307,7 +303,7 @@ class TableWidget(QMainWindow, Table_Window):
     def go_course(self):
         try:
             self.course_name = self.sender().objectName()
-            self.course = CourseWidget(self.CID, self.course_name)
+            self.course = CourseWidget(self.CID, self.course_name, self.Teacher)
             self.course.show()
             self.close()
         except Exception as e:
@@ -342,14 +338,18 @@ class TableWidget(QMainWindow, Table_Window):
 
 # класс Окна_Курсов (преподавание)
 class CourseWidget(QMainWindow, Cours_Window):
-    def __init__(self, CID, course_name):
+    def __init__(self, CID, course_name, teacher):
         super().__init__()
         self.setupUi(self)
         self.CID = CID
+        self.Teacher = teacher
         self.course_name = course_name
         self.progress = fbh.get_user_progress(self.CID, self.course_name)
         self.Name_txt.setText((self.course_name == 'BASE') * 'Основы программирования на Python' + \
                               (self.course_name == 'PRO') * 'Начало разработки на Python')
+        if self.Teacher:
+            self.teaher_btn.show()
+            self.teaher_btn.clicked.connect(self.go_tests)
         # кнопки
         self.Back_btn.clicked.connect(self.go_table)
         # уроки
@@ -420,11 +420,17 @@ class CourseWidget(QMainWindow, Cours_Window):
                 if self.count == self.folder_count:
                     self.editProgram.show()
                     self.results.show()
-                    if int(fbh.get_user_progress(self.CID, self.course_name)) < self.lesson_num:
+                    progress = fbh.get_user_progress_one(self.CID, self.course_name, self.lesson_num)
+                    if progress == None:
                         self.check_btn.clicked.connect(self.check_program)
-                        self.error_btn.clicked.connect(self.my_error)
-                    else:
+                    elif progress == '':
+                        self.error_btn.setPixmap(QtGui.QPixmap('Data/Images/PyTutorial_Courses_8_3.png'))
+                    elif progress == 'Зачет':
                         self.error_btn.setPixmap(QtGui.QPixmap('Data/Images/PyTutorial_Courses_8_1.png'))
+                    else:
+                        self.error_btn.setPixmap(QtGui.QPixmap('Data/Images/PyTutorial_Courses_8_2.png'))
+                        self.check_btn.clicked.connect(self.check_program)
+                    self.error_btn.clicked.connect(self.my_error)
         except Exception as e:
             self.count = 1
             self.Lesson_img.hide()
@@ -436,7 +442,7 @@ class CourseWidget(QMainWindow, Cours_Window):
         text = self.editProgram.toPlainText()
         GoodRes = 'Data/Images/PyTutorial_Courses_8_1.png'
         BadRes = 'Data/Images/PyTutorial_Courses_8_2.png'
-        TeachRes = ''
+        TeachRes = 'Data/Images/PyTutorial_Courses_8_3.png'
         try:
             with open(f'Data/Texts/{self.course_name}/{self.course_name}_RESULTS/{self.course_name}_{self.lesson_num}.txt', 'r', encoding='utf-8') as f:
                 tasks = eval(f.readline())
@@ -450,19 +456,25 @@ class CourseWidget(QMainWindow, Cours_Window):
                             break
                 else:
                     self.error_btn.setPixmap(QtGui.QPixmap(TeachRes))
+                    fbh.update_progress(self.CID, self.course_name, self.lesson_num, '')
         except Exception as e:
             print(f'CHECKPROGRAMM/417: {e}')
 
         if res and ok:
             self.error_btn.setPixmap(QtGui.QPixmap(GoodRes))
-            fbh.update_progress(self.CID, self.course_name, self.lesson_num)
+            fbh.update_progress(self.CID, self.course_name, self.lesson_num, 'Зачет')
         else:
             self.error_btn.setPixmap(QtGui.QPixmap(BadRes))
+            fbh.update_progress(self.CID, self.course_name, self.lesson_num, f'OUT:\n{self.out}\nCORRECT:\n{self.correct}')
 
     def my_error(self):
-        program_error_box(self.out, self.correct)
+        program_error_box(fbh.get_user_progress_one(self.CID, self.course_name, self.lesson_num))
+
+    def go_tests(self):
+        pass
 
 
+# запуск
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main = MainWidget()

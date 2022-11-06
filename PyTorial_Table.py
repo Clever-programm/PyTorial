@@ -140,15 +140,6 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.Profile_role_txt.setFont(font)
         self.Profile_role_txt.setObjectName("Profile_role_txt")
-        self.Profile_courses_txt = QtWidgets.QLabel(self.centralwidget)
-        self.Profile_courses_txt.setGeometry(QtCore.QRect(370, 175, 500, 25))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(10)
-        font.setBold(True)
-        font.setWeight(75)
-        self.Profile_courses_txt.setFont(font)
-        self.Profile_courses_txt.setObjectName("Profile_courses_txt")
         self.Mini_wiki_edit = QtWidgets.QLineEdit(self.centralwidget)
         self.Mini_wiki_edit.setGeometry(QtCore.QRect(12, 236, 138, 20))
         self.Mini_wiki_edit.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
@@ -257,7 +248,6 @@ class Ui_MainWindow(object):
         self.Profile_CID_txt.raise_()
         self.Profile_pproger_txt.raise_()
         self.Profile_role_txt.raise_()
-        self.Profile_courses_txt.raise_()
         self.Profile_choose_btn.raise_()
         self.Courses_main_img.raise_()
         self.Courses_first_img.raise_()
@@ -283,7 +273,6 @@ class Ui_MainWindow(object):
         self.Profile_nickname_txt.setText(_translate("MainWindow", "Nickname(3-20 letters)"))
         self.Profile_CID_txt.setText(_translate("MainWindow", "CID: #000000"))
         self.Profile_pproger_txt.setText(_translate("MainWindow", "P-proger: off"))
-        self.Profile_courses_txt.setText(_translate("MainWindow", "Курсов пройдено: 0"))
         self.About_txt.setText(_translate("MainWindow", '''
             Программа представляет собой 
             приложение "PyTorial", которое 

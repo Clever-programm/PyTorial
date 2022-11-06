@@ -105,22 +105,42 @@ def check_user_sign(email, password):
 def get_user_progress(CID, course):
     try:
         cid = convert_base(CID, to_base=16)
-        return pytorial_storage.child(f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}/').get().val()
+        progress = 0
+        for i in pytorial_storage.child(f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}/').get().each():
+            if i.val() == 'Зачет':
+                progress += 1
+        return progress
+    except Exception as e:
+        print(e)
+        return 0
+
+
+def get_user_progress_one(CID, course, lesson):
+    try:
+        cid = convert_base(CID, to_base=16)
+        return pytorial_storage.child(f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}/{lesson}').get().val()
     except Exception as e:
         print(e)
         raise ConnectionExcept
 
 
-def update_progress(CID, course, new_progress):
+def update_progress(CID, course, lesson, new_progress):
     try:
         cid = convert_base(CID, to_base=16)
         data = {
-            f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}': new_progress
+            f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}/{lesson}': new_progress
         }
         pytorial_storage.update(data)
     except Exception as e:
-        print(e)
-        raise ConnectionExcept
+        try:
+            cid = convert_base(CID, to_base=16)
+            data = {
+                f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}/{lesson}': new_progress
+            }
+            pytorial_storage.set(data)
+        except Exception as e:
+            print(e)
+            raise ConnectionExcept
 
 
 def update_image(CID, new_image):
