@@ -153,3 +153,22 @@ def update_image(CID, new_image):
     except Exception as e:
         print(e)
         raise ConnectionExcept
+
+
+def send_to_check(CID, course, lesson, text):
+    try:
+        cid = convert_base(CID, to_base=16)
+        data = {
+            f'PyTorialTables/Tests/{course}/{lesson}/{str(cid).rjust(6, "0")}': text
+        }
+        pytorial_storage.update(data)
+    except Exception as e:
+        try:
+            cid = convert_base(CID, to_base=16)
+            data = {
+                f'PyTorialTables/Tests/{course}/{lesson}/{str(cid).rjust(6, "0")}': text
+            }
+            pytorial_storage.set(data)
+        except Exception as e:
+            print(e)
+            raise ConnectionExcept

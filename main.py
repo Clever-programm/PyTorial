@@ -368,6 +368,8 @@ class CourseWidget(QMainWindow, Cours_Window):
                 exec(f'if {i} > int({fbh.get_user_progress(self.CID, self.course_name)}):\n'\
                      f'    self.lesson{i}_btn.hide()')
                 exec(f'self.layoutScrollMain.addWidget(self.lesson{i}_btn)')
+            except ConnectionExcept:
+                error_box('Ошибка подключения!')
             except Exception as e:
                 print(f'NEWLESSON/320: {e}')
         self.scrollAreaWidget.setLayout(self.layoutScrollMain)
@@ -431,6 +433,8 @@ class CourseWidget(QMainWindow, Cours_Window):
                         self.error_btn.setPixmap(QtGui.QPixmap('Data/Images/PyTutorial_Courses_8_2.png'))
                         self.check_btn.clicked.connect(self.check_program)
                     self.error_btn.clicked.connect(self.my_error)
+        except ConnectionExcept:
+            error_box('Ошибка подключения!')
         except Exception as e:
             self.count = 1
             self.Lesson_img.hide()
@@ -457,15 +461,21 @@ class CourseWidget(QMainWindow, Cours_Window):
                 else:
                     self.error_btn.setPixmap(QtGui.QPixmap(TeachRes))
                     fbh.update_progress(self.CID, self.course_name, self.lesson_num, '')
+        except ConnectionExcept:
+            error_box('Ошибка подключения!')
         except Exception as e:
             print(f'CHECKPROGRAMM/417: {e}')
-
-        if res and ok:
-            self.error_btn.setPixmap(QtGui.QPixmap(GoodRes))
-            fbh.update_progress(self.CID, self.course_name, self.lesson_num, 'Зачет')
-        else:
-            self.error_btn.setPixmap(QtGui.QPixmap(BadRes))
-            fbh.update_progress(self.CID, self.course_name, self.lesson_num, f'OUT:\n{self.out}\nCORRECT:\n{self.correct}')
+        try:
+            if res and ok:
+                self.error_btn.setPixmap(QtGui.QPixmap(GoodRes))
+                fbh.update_progress(self.CID, self.course_name, self.lesson_num, 'Зачет')
+            else:
+                self.error_btn.setPixmap(QtGui.QPixmap(BadRes))
+                fbh.update_progress(self.CID, self.course_name, self.lesson_num, f'OUT:\n{self.out}\nCORRECT:\n{self.correct}')
+        except ConnectionExcept:
+            error_box('Ошибка подключения!')
+        except Exception as e:
+            print(f'UPDATEDB/474: {e}')
 
     def my_error(self):
         program_error_box(fbh.get_user_progress_one(self.CID, self.course_name, self.lesson_num))
