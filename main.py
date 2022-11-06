@@ -17,6 +17,7 @@ from PyTorial_Cours import Ui_MainWindow as Cours_Window, ClickedLabel
 from UserProgram import check as up
 # импортируем базу данных
 import FireBaseHelper as fbh
+from FireBaseHelper import ConnectionExcept
 
 wikipedia.set_lang('ru')
 
@@ -40,6 +41,14 @@ def wiki_box(word):
         wiki.setText('Информация по данному слову не найдена')
         print(f'WIKI/38: {e}')
     wiki.exec()
+
+
+def program_error_box(out, correct):
+    error = QMessageBox()
+    error.setWindowTitle('Program error')
+    error.setText(f'OUT: {out}\n'\
+                  f'CORRECT: {correct}')
+    error.exec()
 
 
 # классы ошибок
@@ -103,6 +112,8 @@ class MainWidget(QMainWindow, Main_Window):
             error_box('Такого пользователя не существует!')
         except PassExcept:
             error_box('Неверный пароль!')
+        except ConnectionExcept:
+            error_box('Ошибка подключения!')
         except Exception as e:
             error_box('Произошла непредвиденная ошибка')
             print(f'GOTABLE/105: {e}')
@@ -150,6 +161,8 @@ class RegWidget(QMainWindow, Reg_Window):
             error_box("Пароли не совпадают!")
         except DBExcept:
             error_box(f'Пользователь с почтой {email} уже существует!')
+        except ConnectionExcept:
+            error_box('Ошибка подключения!')
         except Exception as e:
             error_box('Произошла непредвиденная ошибка')
             print(f'REGISTER/152: {e}')
@@ -198,15 +211,27 @@ class TableWidget(QMainWindow, Table_Window):
         self.Courses_first_btn.clicked.connect(self.go_course)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
-        if event.key() == Qt.Key_F10:
-            wiki_box(self.Mini_wiki_edit.text())
+        try:
+            if event.key() == Qt.Key_F10:
+                wiki_box(self.Mini_wiki_edit.text())
+        except Exception as e:
+            error_box('Произошла непредвиденная ошибка')
+            print(f'F10: {e}')
 
     def mousePressEvent(self, event: QtGui.QMouseEvent):
-        if event.MouseButtonDblClick:
-            self.Mini_wiki_edit.setEnabled(not self.Mini_wiki_edit.isEnabled())
+        try:
+            if event.MouseButtonDblClick:
+                self.Mini_wiki_edit.setEnabled(not self.Mini_wiki_edit.isEnabled())
+        except Exception as e:
+            error_box('Произошла непредвиденная ошибка')
+            print(f'MOUSE: {e}')
 
     def copy(self):
-        pclip.copy(self.Profile_CID_txt.text()[6:])
+        try:
+            pclip.copy(self.Profile_CID_txt.text()[6:])
+        except Exception as e:
+            error_box('Произошла непредвиденная ошибка')
+            print(f'COPY: {e}')
 
     def choose_profile(self):
         self.Profile_main_img.show()
@@ -279,7 +304,6 @@ class TableWidget(QMainWindow, Table_Window):
         except Exception as e:
             print(f'BinaryError: {e}')
 
-
     def go_course(self):
         try:
             self.course_name = self.sender().objectName()
@@ -316,7 +340,7 @@ class TableWidget(QMainWindow, Table_Window):
         return new_img
 
 
-# класс Окна_Курсов (тесты, преподавание)
+# класс Окна_Курсов (преподавание)
 class CourseWidget(QMainWindow, Cours_Window):
     def __init__(self, CID, course_name):
         super().__init__()
@@ -332,7 +356,7 @@ class CourseWidget(QMainWindow, Cours_Window):
         folder = Path(f'Data/Texts/{course_name}')
         if not folder.is_dir():
             raise ValueError(f"[{folder}] не существует или не является директорией")
-        for i in range(len(list(folder.iterdir()))):
+        for i in range(len(list(folder.iterdir())) - 1):
             try:
                 exec(f'self.lesson{i}_btn = ClickedLabel()')
                 exec(f'self.lesson{i}_btn.setGeometry(QtCore.QRect(0, 0, 980, 130))')
@@ -341,6 +365,8 @@ class CourseWidget(QMainWindow, Cours_Window):
                 exec(f'self.lesson{i}_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))')
                 exec(f'self.lesson{i}_btn.setObjectName("btn{i}")')
                 exec(f'self.lesson{i}_btn.clicked.connect(self.go_lesson)')
+                exec(f'if {i} > int({fbh.get_user_progress(self.CID, self.course_name)}):\n'\
+                     f'    self.lesson{i}_btn.hide()')
                 exec(f'self.layoutScrollMain.addWidget(self.lesson{i}_btn)')
             except Exception as e:
                 print(f'NEWLESSON/320: {e}')
@@ -379,26 +405,62 @@ class CourseWidget(QMainWindow, Cours_Window):
 
     def rollLesson(self):
         self.test = 0
+        self.out = ''
+        self.correct = ''
         roll = (self.sender().objectName() == 'rollNext_btn') - (self.sender().objectName() == 'rollBack_btn')
         self.count += roll
         course = self.course_name
         lesson = f"{self.course_name}_{self.lesson_num}"
         text = f"{lesson}.{self.count}.txt"
+        self.editProgram.hide()
+        self.results.hide()
         try:
             with open(f'Data/Texts/{course}/{lesson}/{text}', encoding='utf-8') as file:
                 self.Lesson_txt.setText(''.join(file.readlines()))
                 if self.count == self.folder_count:
                     self.editProgram.show()
                     self.results.show()
-                    self.check_btn.clicked.connect(None)
-                    self.error_btn.clicked.connect(None)
+                    if int(fbh.get_user_progress(self.CID, self.course_name)) < self.lesson_num:
+                        self.check_btn.clicked.connect(self.check_program)
+                        self.error_btn.clicked.connect(self.my_error)
+                    else:
+                        self.error_btn.setPixmap(QtGui.QPixmap('Data/Images/PyTutorial_Courses_8_1.png'))
         except Exception as e:
             self.count = 1
             self.Lesson_img.hide()
             self.scrollAreaLesson.hide()
+            print(f'GOTEST/404: {e}')
 
     def check_program(self):
-        text = self.editProgram.text()
+        res = True
+        text = self.editProgram.toPlainText()
+        GoodRes = 'Data/Images/PyTutorial_Courses_8_1.png'
+        BadRes = 'Data/Images/PyTutorial_Courses_8_2.png'
+        TeachRes = ''
+        try:
+            with open(f'Data/Texts/{self.course_name}/{self.course_name}_RESULTS/{self.course_name}_{self.lesson_num}.txt', 'r', encoding='utf-8') as f:
+                tasks = eval(f.readline())
+                ok = tasks != "For teacher check"
+                if ok:
+                    for i in tasks.keys():
+                        self.out = ''.join(up(text, tasks[i]))
+                        self.correct = i
+                        if self.out != i:
+                            res = False
+                            break
+                else:
+                    self.error_btn.setPixmap(QtGui.QPixmap(TeachRes))
+        except Exception as e:
+            print(f'CHECKPROGRAMM/417: {e}')
+
+        if res and ok:
+            self.error_btn.setPixmap(QtGui.QPixmap(GoodRes))
+            fbh.update_progress(self.CID, self.course_name, self.lesson_num)
+        else:
+            self.error_btn.setPixmap(QtGui.QPixmap(BadRes))
+
+    def my_error(self):
+        program_error_box(self.out, self.correct)
 
 
 if __name__ == '__main__':

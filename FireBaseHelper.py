@@ -25,79 +25,111 @@ pytorial_storage = firebase.database()
 
 
 def convert_base(num, to_base=10, from_base=10):
-    if isinstance(num, str):
-        n = int(num, from_base)
-    else:
-        n = int(num)
-    alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    if n < to_base:
-        return alphabet[n]
-    else:
-        return convert_base(n // to_base, to_base) + alphabet[n % to_base]
+    try:
+        if isinstance(num, str):
+            n = int(num, from_base)
+        else:
+            n = int(num)
+        alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        if n < to_base:
+            return alphabet[n]
+        else:
+            return convert_base(n // to_base, to_base) + alphabet[n % to_base]
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
 
 
 def new_user(nickname, email, password):
-    us = set()
-    for i in pytorial_storage.child('PyTorialTables').child('Users').get().each():
-        us.add(i.key())
-    while True:
-        rid = random.randint(1, 16777215)
-        sid = convert_base(rid, to_base=16)
-        if sid in us:
-            continue
-        data = {'Avatar': 0,
-                'CID': rid,
-                'Email': email,
-                'Nickname': nickname,
-                'Password': password,
-                'Pproger': False,
-                'Teacher': False}
-        cours = {'BASE': 0,
-                 'PRO': 0}
-        pytorial_storage.child('PyTorialTables').child('Users').child(sid.rjust(6, '0')).set(data)
-        pytorial_storage.child('PyTorialTables').child('Users').child(sid.rjust(6, '0')).child('Courses').set(cours)
-        break
+    try:
+        us = set()
+        for i in pytorial_storage.child('PyTorialTables').child('Users').get().each():
+            us.add(i.key())
+        while True:
+            rid = random.randint(1, 16777215)
+            sid = convert_base(rid, to_base=16)
+            if sid in us:
+                continue
+            data = {'Avatar': 0,
+                    'CID': rid,
+                    'Email': email,
+                    'Nickname': nickname,
+                    'Password': password,
+                    'Pproger': False,
+                    'Teacher': False}
+            cours = {'BASE': 0,
+                     'PRO': 0}
+            pytorial_storage.child('PyTorialTables').child('Users').child(sid.rjust(6, '0')).set(data)
+            pytorial_storage.child('PyTorialTables').child('Users').child(sid.rjust(6, '0')).child('Courses').set(cours)
+            break
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
 
 
 def find_user_by_id(CID):
-    data = list()
-    for i in pytorial_storage.child('PyTorialTables').child('Users').child(str(CID).rjust(6, '0')).get().each():
-        data.append(i.val())
-    return data
+    try:
+        data = list()
+        for i in pytorial_storage.child('PyTorialTables').child('Users').child(str(CID).rjust(6, '0')).get().each():
+            data.append(i.val())
+        return data
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
 
 
 def find_user_by_email(email):
-    for i in pytorial_storage.child('PyTorialTables').child('Users').get().each():
-        if i.val()['Email'] == email:
-            return find_user_by_id(i.key())
-    return None
+    try:
+        for i in pytorial_storage.child('PyTorialTables').child('Users').get().each():
+            if i.val()['Email'] == email:
+                return find_user_by_id(i.key())
+        return None
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
 
 
 def check_user_sign(email, password):
-    data = find_user_by_email(email)
-    if not data:
-        raise UserExcept
-    if data[5] == password:
-        return data
-    return False
+    try:
+        data = find_user_by_email(email)
+        if not data:
+            raise UserExcept
+        if data[5] == password:
+            return data
+        return False
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
 
 
 def get_user_progress(CID, course):
-    cid = convert_base(CID, to_base=16)
-    return pytorial_storage.child(f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}/').get().val()
+    try:
+        cid = convert_base(CID, to_base=16)
+        return pytorial_storage.child(f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}/').get().val()
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
 
 
 def update_progress(CID, course, new_progress):
-    cid = convert_base(CID, to_base=16)
-    data = {
-        f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}': new_progress
-    }
-    pytorial_storage.update(data)
+    try:
+        cid = convert_base(CID, to_base=16)
+        data = {
+            f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Courses/{course}': new_progress
+        }
+        pytorial_storage.update(data)
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
 
 
 def update_image(CID, new_image):
-    cid = convert_base(CID, to_base=16)
-    data = {
-        f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Avatar': str(new_image)
-    }
-    pytorial_storage.update(data)
+    try:
+        cid = convert_base(CID, to_base=16)
+        data = {
+            f'PyTorialTables/Users/{str(cid).rjust(6, "0")}/Avatar': str(new_image)
+        }
+        pytorial_storage.update(data)
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept

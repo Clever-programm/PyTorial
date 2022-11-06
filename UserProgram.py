@@ -13,10 +13,12 @@ class Results:
         return self.prints
 
     def my_input(self, *texts):
-        self.prints.append(' '.join(map(str, texts)))
+        txt = ' '.join(map(str, texts))
+        if txt:
+            self.prints.append(txt)
         if self.inputs:
-            a = self.inputs[0][0]
-            self.inputs[0].pop(0)
+            a = self.inputs[0][0][0]
+            self.inputs[0][0].pop(0)
             return a
         return None
 
