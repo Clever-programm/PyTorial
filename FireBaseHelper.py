@@ -172,3 +172,33 @@ def send_to_check(CID, course, lesson, text):
         except Exception as e:
             print(e)
             raise ConnectionExcept
+
+
+def get_lessons(course):
+    try:
+        data = list()
+        for i in pytorial_storage.child('PyTorialTables').child('Tests').child(course).get().each():
+            data.append(i.key())
+        return data[:-1]
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
+
+
+def get_user_programs(course, lesson):
+    try:
+        data = dict()
+        for i in pytorial_storage.child('PyTorialTables').child('Tests').child(course).child(lesson).get().each():
+            data[i.key()] = i.val()
+        return data
+    except Exception as e:
+        print(e)
+        raise ConnectionExcept
+
+
+def delete_program(course, lesson, CID):
+    try:
+        pytorial_storage.child('PyTorialTables').child('Tests').child(course).child(lesson).remove(CID)
+    except Exception as e:
+            print(e)
+            raise ConnectionExcept

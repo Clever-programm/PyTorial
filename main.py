@@ -4,8 +4,8 @@ import pyperclip as pclip
 import wikipedia
 from PIL import Image
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, QSize
 from pathlib import Path
 from base64 import b64encode, b64decode
 from io import BytesIO
@@ -481,7 +481,129 @@ class CourseWidget(QMainWindow, Cours_Window):
         program_error_box(fbh.get_user_progress_one(self.CID, self.course_name, self.lesson_num))
 
     def go_tests(self):
-        pass
+        try:
+            self.tests = TestWidget(self.course_name)
+            self.tests.show()
+        except Exception as e:
+            print(f'GOTESTS/490: {e}')
+
+
+# класс Окна_проверки
+class TestWidget(QWidget):
+    def __init__(self, course):
+        super().__init__()
+        self.initUi(course)
+
+    def initUi(self, course):
+        self.Main_layout = QGridLayout()
+        self.setLayout(self.Main_layout)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(8)
+        font.setBold(True)
+        font.setWeight(75)
+        count = 0
+        try:
+            for i in fbh.get_lessons(course):
+                label = QLabel(f'Lesson {i}:')
+                label.setMinimumSize(200, 50)
+                label.setFont(font)
+                button = QPushButton('Перейти к тестам')
+                button.setMinimumSize(200, 50)
+                button.setFont(font)
+                button.setObjectName(i)
+                button.clicked.connect(self.open_lesson)
+                self.Main_layout.addWidget(label, count, 0)
+                self.Main_layout.addWidget(button, count, 1)
+                count += 1
+        except Exception as e:
+            print(e)
+        self.course_name = course
+
+    def open_lesson(self):
+        try:
+            for i in reversed(range(self.Main_layout.count())):
+                self.Main_layout.itemAt(i).widget().deleteLater()
+        except Exception as e:
+            print(e)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(8)
+        font.setBold(True)
+        font.setWeight(75)
+        count = 0
+        self.lesson = self.sender().objectName()
+        try:
+            for i in fbh.get_user_programs(self.course_name, self.lesson).keys():
+                label = QLabel()
+                label.setMinimumSize(200, 50)
+                label.setFont(font)
+                label.setText(f'{i}:')
+                button = QPushButton()
+                button.setMinimumSize(200, 50)
+                button.setFont(font)
+                button.setText('Посмотреть код')
+                button.setObjectName(i)
+                button.clicked.connect(self.open_code)
+                self.Main_layout.addWidget(label, count, 0)
+                self.Main_layout.addWidget(button, count, 1)
+                count += 1
+        except Exception as e:
+            print(e)
+
+    def open_code(self):
+        code = TeacherDialog(self.sender().objectName(), self.course_name, self.lesson)
+        code.exec()
+
+
+# диалоговое окно для преподавателя
+class TeacherDialog(QDialog):
+    def __init__(self, CID, course, lesson):
+        super().__init__()
+        self.CID = CID
+        self.course = course
+        self.lesson = lesson
+        self.initUi()
+
+
+    def initUi(self):
+        self.setWindowTitle(self.CID)
+        self.vbox = QVBoxLayout()
+        self.setLayout(self.vbox)
+        try:
+            self.Label = QLabel(fbh.get_user_programs(self.course, self.lesson)[self.CID])
+        except Exception as e:
+            print(e)
+            self.Label = QLabel('Ошибка подключения')
+        self.vbox.addWidget(self.Label)
+        self.hbox = QHBoxLayout()
+        self.error_btn = QPushButton('Ошибка')
+        self.error_btn.clicked.connect(self.error)
+        self.hbox.addWidget(self.error_btn)
+        self.ok_btn = QPushButton('Зачет')
+        self.ok_btn.clicked.connect(self.ok)
+        self.hbox.addWidget(self.ok_btn)
+        self.hwidget = QWidget()
+        self.hwidget.setLayout(self.hbox)
+        self.vbox.addWidget(self.hwidget)
+
+    def error(self):
+        text, ok = QInputDialog.getText(self, 'Input Error', 'Описание проблемы кода:')
+        if ok:
+            try:
+                fbh.update_progress(self.CID, self.course, self.lesson, text)
+                fbh.delete_program(self.course, self.lesson, self.CID)
+            except Exception as e:
+                print(e)
+        self.close()
+
+    def ok(self):
+        try:
+            fbh.update_progress(self.CID, self.course, self.lesson, 'Зачет')
+            fbh.delete_program(self.course, self.lesson, self.CID)
+        except Exception as e:
+            print(e)
+        self.close()
 
 
 # запуск
