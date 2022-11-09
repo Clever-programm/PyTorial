@@ -6,6 +6,7 @@ base = 'Win32GUI' if sys.platform == 'win32' else None
 executables = [Executable('main.py',
                           targetName='PyTorial.exe',
                           base=base,
+                          icon='icon.ico',
                           shortcutName='PyTorial',
                           shortcutDir='CleverProduction'
                           )]
